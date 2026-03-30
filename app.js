@@ -5,9 +5,9 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-//session middleware
+//session use
 app.use(session({
-    secret: "superSecretKey", //should be stronger
+    secret: "",
     resave: false,
     saveUninitialized: false,
     proxy: true,
