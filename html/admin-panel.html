@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin User Management</title>
+    <link rel="stylesheet" href="base.css">
+</head>
+<body class="all_text">
+
+    <h1>Admin User Management</h1>
+    <a href="web-page-app-part-2.html" class="nav_button">Back to Web Page App Part 2</a>
+
+    <p id="adminUserMessage"></p>
+
+    <!-- List users -->
+    <h3>Users</h3> 
+    <p id="usersList"></p>
+
+    <!-- Create user -->
+    <h3>Create User</h3>
+    <form id="createUserForm">
+        <input type="text" name="username" placeholder="Username" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <select name="role" required>
+            <option value="">Select Role</option>
+            <option value="admin">Admin</option>
+            <option value="author">Author</option>
+        </select>
+        <button type="submit">Create User</button>
+    </form>
+
+    <!-- Update user -->
+    <h3>Update User</h3>
+    <form id="updateUserForm">
+        <input type="text" name="username" placeholder="User to update" required>
+        <input type="password" name="password" placeholder="New Password">
+        <select name="role">
+            <option value="">Select Role (optional)</option>
+            <option value="admin">Admin</option>
+            <option value="author">Author</option>
+        </select>
+        <button type="submit">Update User</button>
+    </form>
+
+    <!-- Delete user -->
+    <h3>Delete User</h3>
+    <form id="deleteUserForm">
+        <input type="text" name="username" placeholder="User to delete" required>
+        <button type="submit">Delete User</button>
+    </form>
+
+    <script src="adminFetcher.js"></script>
+</body>
+</html>

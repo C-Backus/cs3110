@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="base.css">
+
+        <title>Calculator</title>
+
+    </head>
+        <body class="all_text">
+
+            <a href="greeting.html" class="nav_button">Go to greeting page</a>
+	    <a href="web-page-app-part-2.html" class="nav_button">Go to Web Page App Part 2</a>
+
+            <h1 class="welcome_message">This page provides a simple input-based calculator.</h1>
+            <h2 class="welcome_message">For operations where order matters (division, subtraction), the first number is used as the dividend/minuend 
+                and the second number is used as the divisor/subtrahend.</h2>
+            
+            <h1>Calculator</h1>
+
+            <form id="calc_form" name="calculator">       
+                <input type="number" name="num1" placeholder="First Number">
+                <input type="number" name="num2" placeholder="Second Number">
+                <select name="operation">
+                    <option value="" selected disabled>Choose Operation</option>
+                    <option value="Add">Add</option>
+                    <option value="Subtract">Subtract</option>
+                    <option value="Multiply">Multiply</option>
+                    <option value="Divide">Divide</option>
+                </select>
+                <button type="submit">Calculate</button>
+            </form>
+
+
+            <form id="result_form">
+                <label for="result">Result:</label>
+                <input type="text" id="result" name="result" readonly>
+                <button type="button" id="clear_button">Clear</button>
+                <button type="button" id="clear_all_button">Clear All</button>
+	    </form>
+
+	    <script src="script_calc.js"></script>
+        </body>
+
+</html>                    

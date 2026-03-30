@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+    <head>
+	<meta charset="UTF-8">
+        <link rel="stylesheet" href="base.css">
+        <title>Web Page App Part Two</title>
+
+    </head>
+        <body class="all_text">
+
+                <a href="index.html" class="nav_button">Go to calculator</a>
+                <a href="greeting.html" class="nav_button">Go to greeting page</a>
+		<a href="admin-panel.html" id="adminButton" class="nav_button" style="display:none;"> Admin Panel</a>
+
+		<h1 class="welcome_message">----Web Page App Part Two----</h1>
+		<h2 class="welcome_message"><i>Now with Authentication!</i></h2>
+
+		<!-- Login form -->
+		<h3>Login</h3>
+		<form id="loginForm">
+			<input type="text" id="username" placeholder="Username" required>
+			<input type="password" id="password" placeholder="Password" required>
+			<button type="submit">Login</button>
+			<button type="button" id="logoutButton">Logout</button>
+		</form>
+
+		<p id="loginMessage"></p>
+
+		<!--Items display -->
+		<h3>Items to retrieve</h3>
+		<p id="getObject"></p>
+
+		<h3>GET</h3>
+			<form id="getForm">
+			        <input type="number" name="id" placeholder="Enter ID">
+		        	<button type="submit">Get Item</button>
+		    	</form>
+	
+	    	<p id="getResult"></p>
+
+	    	<h3>POST</h3>
+	    		<form id="postForm">
+		        	<input type="number" name="id" placeholder="ID">
+			        <input type="text" name="name" placeholder="Name">
+			        <input type="text" name="type" placeholder="Type">
+			        <button type="submit">Add Item</button>
+		    	</form>
+		<p id="postResult"></p>               
+
+		<h3>PUT</h3>
+			<form id="putForm">
+				<input type="number" name="id" placeholder="ID">
+    				<input type="text" name="name" placeholder="New Name">
+    				<input type="text" name="type" placeholder="New Type">
+    				<button type="submit">Update Item</button>
+			</form>
+
+		<h3>DELETE</h3>
+			<form id="deleteForm">
+			    <input type="number" name="id" placeholder="ID to Delete">
+			    <button type="submit">Delete Item</button>
+			</form>
+
+		<script src="fetcher.js"></script>
+
+	</body>
+</html>

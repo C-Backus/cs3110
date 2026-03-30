@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="base.css">
+
+        <title>Web Page App Part One</title>
+
+    </head>
+        <body class="all_text">
+
+		<a href="index.html"><button>Go to calculator</button></a>
+		<a href="greeting.html"><button>Go to greeting page</button></a>
+	
+		<h1 class="welcome_message">----Web Page App Part One----</h1>
+
+	        <h3>GET</h3>
+	        <form action="/api/items" method="GET">
+	            <input type="number" name="id" placeholder="Enter ID">
+	            <button type="submit">Get Item</button>
+	        </form>
+
+	        <h3>POST</h3>
+	        <form action="/api/items" method="POST">
+	            <input type="number" name="id" placeholder="ID">
+	            <input type="text" name="name" placeholder="Name">
+	            <input type="text" name="type" placeholder="Type">
+	            <button type="submit">Add Item</button>
+	        </form>
+        </body>
+</html>
