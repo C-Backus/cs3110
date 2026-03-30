@@ -1,2 +1,4 @@
 # cs3110
-CS3110 Programming the Mobile Web Assignments
+CS3110 Programming the Mobile Web 
+
+Weekly Assignments
