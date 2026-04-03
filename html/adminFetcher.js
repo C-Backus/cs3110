@@ -1,29 +1,3 @@
-//Admin create user
-document.getElementById("createUserForm")?.addEventListener("submit", async function(event) {
-event.preventDefault();
-const form = event.target;
-
-const response = await fetch("/api/users", {
-    method: "POST",
-    credentials: "include",
-    headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-        username: form.username.value,
-        password: form.password.value,
-        role: form.role.value
-    })
-});
-
-const message = await response.text();
-postResult.innerText = message;
-form.reset();
-
-});
-
-const adminMessage = document.getElementById("adminUserMessage");
-
 //show users 
 async function refreshUserList() {
     try {
@@ -31,18 +5,20 @@ async function refreshUserList() {
         const users = await response.json();
         document.getElementById("usersList").innerText =
             users.map(u => `${u.username} (${u.role})`).join("\n");
+
     } catch (err) {
         adminMessage.innerText = "Error: " + err.message;
     }
 }
-
 refreshUserList();
 
 //create user
-document.getElementById("createUserForm").addEventListener("submit", async (e) => {
+const adminMessage = document.getElementById("adminUserMessage");
+document.getElementById("createUserForm")?.addEventListener("submit", async (e) => {
     e.preventDefault();
     const form = e.target;
-    try {
+
+    try{
         const response = await fetch("/api/users", {
             method: "POST",
             credentials: "include",
@@ -53,12 +29,15 @@ document.getElementById("createUserForm").addEventListener("submit", async (e) =
                 role: form.role.value
             })
         });
+
         const message = await response.text();
         adminMessage.innerText = message;
-	refreshUserList();
+        refreshUserList();
         form.reset();
+
     } catch (err) {
         adminMessage.innerText = "Error: " + err.message;
+        return;
     }
 });
 
@@ -77,9 +56,12 @@ document.getElementById("updateUserForm").addEventListener("submit", async (e) =
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body)
         });
+
         const message = await response.text();
         adminMessage.innerText = message;
+        refreshUserList();
         form.reset();
+
     } catch (err) {
         adminMessage.innerText = "Error: " + err.message;
     }
@@ -94,10 +76,12 @@ document.getElementById("deleteUserForm").addEventListener("submit", async (e) =
             method: "DELETE",
             credentials: "include"
         });
+
         const message = await response.text();
         adminMessage.innerText = message;
-	refreshUserList();
-	form.reset();
+	    refreshUserList();
+	    form.reset();
+
     } catch (err) {
         adminMessage.innerText = "Error: " + err.message;
     }

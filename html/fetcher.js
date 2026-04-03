@@ -83,7 +83,10 @@ document.getElementById("logoutButton").addEventListener("click", async function
 
         if (response.ok) {
             checkAdminButton();
-	    loginMessage.innerText = "Logged out successfully";
+	        loginMessage.innerText = "Logged out successfully";
+            document.getElementById("getResult").innerText = "";
+            document.getElementById("postResult").innerText = "";
+            showObject();
 	    
         } else {
             loginMessage.innerText = "Logout failed";
@@ -140,8 +143,8 @@ document.getElementById("postForm").addEventListener("submit", async function(ev
         credentials: "include"
     });
 
-    const message = await response.text();
-    postResult.innerText = message;
+    const message = await response.json();
+    postResult.innerText = message.message;
     form.reset();
     showObject();
 });

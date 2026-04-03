@@ -1,3 +1,39 @@
+//sequelize setup
+const { Sequelize, DataTypes } = require('sequelize');
+const sequelize = new Sequelize({
+    dialect: 'sqlite',
+    storage: '/var/www/api/assignmentDatabase.db'
+});
+
+//user framework
+const User = sequelize.define('User', {
+    username: {
+        type: DataTypes.STRING,
+        unique: true,
+        allowNull: false
+    },
+    password: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    role: {
+        type: DataTypes.STRING,
+        allowNull: false
+    }
+});
+
+//item framework
+const Item = sequelize.define('Item', {
+    name: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    type: {
+        type: DataTypes.STRING,
+        allowNull: false
+    }
+});
+
 const express = require('express');
 const session = require('express-session');
 const app = express();
@@ -5,26 +41,16 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-//session use
+//enable sessions
 app.use(session({
-    secret: "",
+    secret: "", /*DELETE BEFORE PUSHING TO GITHUB*/
     resave: false,
     saveUninitialized: false,
     proxy: true,
     cookie: { secure: false }
 }));
 
-//items
-let items = [
-    { id: 1, name: "miller lite", type: "beer" },
-    { id: 2, name: "lost oak", type: "wine" }
-];
-
-//users
-const users = {
-    admin: { password: "admin", role: "admin" },
-    user1: { password: "password", role: "author" }
-};
+//------ log in/out & auth functions ------
 
 //check user permissions for admin button auth
 app.get('/api/me', requireAuth, (req, res) => {
@@ -35,9 +61,9 @@ app.get('/api/me', requireAuth, (req, res) => {
 });
 
 //login
-app.post('/api/login', (req, res) => { 
+app.post('/api/login', async (req, res) => { 
 	const { username, password } = req.body; 
-	const user = users[username]; 
+	const user = await User.findOne({ where: { username } }); 
 
 	if (!user || user.password !== password) { 
 		return res.status(401).send("Invalid credentials"); 
@@ -45,7 +71,8 @@ app.post('/api/login', (req, res) => {
 
 	req.session.user = { 
 		username: username, 
-		role: user.role }; 
+		role: user.role 
+    }; 
 	res.send("Login successful"); 
 });
 
@@ -76,106 +103,164 @@ function requireAdmin(req, res, next) {
     next();
 }
 
+//------ item functions ------
+
 //GET (unauthenticated)
-app.get('/api/items', (req, res) => {
+app.get('/api/items', async (req, res) => {
     const { id } = req.query;
-    if (!id) return res.json(items);
 
-    const numericId = parseInt(id);
-    if (isNaN(numericId)) return res.status(400).json({ error: "Invalid ID" });
+    if (!id) {
+        const allItems = await Item.findAll();
+        return res.json(allItems);
+    }
 
-    const item = items.find(i => i.id === numericId);
-    if (!item) return res.status(404).json({ error: "Item not found" });
+    const item = await Item.findByPk(parseInt(id));
+    if (!item) {
+        return res.status(404).json({ error: "Item not found" });
+    }
 
     return res.json(item);
 });
 
 //POST (authenticated)
-app.post('/api/items', requireAuth, (req, res) => {
+app.post('/api/items', requireAuth, async (req, res) => {
     const { id, name, type } = req.body;
-    if (!id || !name || !type) return res.status(400).send("Missing parameters");
-    if (items.find(i => i.id === parseInt(id))) return res.status(409).send("Duplicate ID");
+    
+    if (!id || !name || !type) {
+        return res.status(400).send("Missing parameters");
+    }
 
-    items.push({ id: parseInt(id), name, type });
-    res.send(`Item added successfully by ${req.session.user.username}`);
+    const existingItem = await Item.findOne({ where: { id } });
+    if (existingItem) {
+        return res.status(409).send("Duplicate ID");
+    }
+
+    const newItem = await Item.create({ id, name, type });
+    res.status(201).json({
+        message: `Item created by ${req.session.user.username}`,
+        item: newItem
+    });
 });
 
 //PUT (authenticated)
-app.put('/api/items/:id', requireAuth, (req, res) => {
-    const id = parseInt(req.params.id);
-    const item = items.find(i => i.id === id);
-    if (!item) return res.status(404).send("Item not found");
+app.put('/api/items/:id', requireAuth, async (req, res) => {
+    const item = await Item.findByPk(parseInt(req.params.id));
+    
+    if (!item) {
+        return res.status(404).send("Item not found");
+    }
 
     item.name = req.body.name || item.name;
     item.type = req.body.type || item.type;
+    await item.save();
+    
     res.send(`Item updated by ${req.session.user.username}`);
 });
 
 //DELETE (authenticated)
-app.delete('/api/items/:id', requireAuth, (req, res) => {
-    const id = parseInt(req.params.id);
-    const index = items.findIndex(i => i.id === id);
-    if (index === -1) return res.status(404).send("Item not found");
+app.delete('/api/items/:id', requireAuth, async (req, res) => {
+    const item = await Item.findByPk(parseInt(req.params.id));
+    
+    if (!item) {
+        return res.status(404).send("Item not found");
+    }
 
-    items.splice(index, 1);
+    await item.destroy();
+    
     res.send(`Item deleted by ${req.session.user.username}`);
 });
 
-app.get('/api/users', requireAuth, requireAdmin, (req, res) => {
 
-    const safeUsers = Object.entries(users).map(([username, info]) => ({
-        username,
-        role: info.role
-    }));
+//------ admin user functions ------
 
-    res.json(safeUsers);
+//get users
+app.get('/api/users', requireAuth, requireAdmin, async (req, res) => {
+
+    const users = (await User.findAll({ attributes: ['username', 'role'] }));
+    res.json(users);
 
 });
 
-
-//admin user functions
-app.post('/api/users', requireAuth, requireAdmin, (req, res) => {
+//create user
+app.post('/api/users', requireAuth, requireAdmin, async (req, res) => {
 
     const { username, password, role } = req.body;
 
     if (!username || !password || !role)
         return res.status(400).send("Missing fields");
 
-    if (users[username])
+    const userExists = await User.findOne({ where: { username } });
+    if (userExists)
         return res.status(409).send("User already exists");
 
-    users[username] = { password, role };
+    await User.create({ username, password, role });
 
     res.send(`User ${username} created by ${req.session.user.username}`);
 
 });
 
 //update user
-app.put('/api/users/:username', requireAuth, requireAdmin, (req, res) => {
+app.put('/api/users/:username', requireAuth, requireAdmin, async (req, res) => {
     const username = req.params.username;
     const { password, role } = req.body;
 
-    if (!users[username])
+    const user = await User.findOne({ where: { username } });
+    if (!user)
         return res.status(404).send("User not found");
 
-    if (password) users[username].password = password;
-    if (role) users[username].role = role;
+    if (password) user.password = password;
+    if (role) user.role = role;
+
+    await user.save();
 
     res.send(`User ${username} updated by ${req.session.user.username}`);
 });
 
 //delete user
-app.delete('/api/users/:username', requireAuth, requireAdmin, (req, res) => {
+app.delete('/api/users/:username', requireAuth, requireAdmin, async (req, res) => {
     const username = req.params.username;
 
-    if (!users[username])
+    const user = await User.findOne({ where: { username } });
+    if (!user)
         return res.status(404).send("User not found");
 
-    delete users[username];
+    await user.destroy();
     res.send(`User ${username} deleted by ${req.session.user.username}`);
 });
 
 
-app.listen(3000, () => {
+//------ sync database & run server ------
+sequelize.sync({ alter: true }).then(async () => {
+    console.log("Database synced");
+
+    //create default users (only once!)
+    const admin = await User.findOne({ where: { username: 'admin' } });
+    if (!admin) {
+        await User.create({ username: 'admin', password: 'admin', role: 'admin' });
+    }
+    const user1 = await User.findOne({ where: { username: 'user1' } });
+    if (!user1) {
+        await User.create({ username: 'user1', password: 'password', role: 'author' });
+    }
+    console.log("Default users created");
+
+    //create default items (only once!)
+    const item1 = await Item.findOne({ where: { name: 'miller lite' } });
+    if (!item1) {
+        await Item.create({ name: 'miller lite', type: 'beer' });
+    }
+    const item2 = await Item.findOne({ where: { name: 'lost oak' } });
+    if (!item2) {
+        await Item.create({ name: 'lost oak', type: 'wine' });
+    }
+    console.log("Default items created");
+
+    app.listen(3000, () => {
     console.log("Server running on port 3000");
+    });
+
+
+}).catch(err => {
+    console.error("Error syncing database:", err);
 });
+
