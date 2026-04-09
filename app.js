@@ -65,7 +65,7 @@ app.use(express.urlencoded({ extended: true }));
 
 //enable sessions
 app.use(session({
-    secret: "superSecretKey", /*DELETE BEFORE PUSHING TO GITHUB*/
+    secret: "", /*DELETE BEFORE PUSHING TO GITHUB*/
     resave: false,
     saveUninitialized: false,
     proxy: true,
