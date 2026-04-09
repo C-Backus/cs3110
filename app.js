@@ -1,4 +1,4 @@
-//sequelize setup
+//------ Sequelize Setup & frameworks ------
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = new Sequelize({
     dialect: 'sqlite',
@@ -31,19 +31,41 @@ const Item = sequelize.define('Item', {
     type: {
         type: DataTypes.STRING,
         allowNull: false
+    },
+    lastModifiedBy: {
+        type: DataTypes.STRING,
+        allowNull: true
     }
 });
 
+//------- express, sessions, and sockets setup ------
+
+//express setup
 const express = require('express');
 const session = require('express-session');
 const app = express();
+
+//sockets setup
+const http = require('http');
+const { Server } = require('socket.io');
+const server = http.createServer(app);
+const io = new Server(server);
+
+//user connection logging
+io.on("connection", (socket) => {
+    console.log("User connected: " + socket.id);
+
+    socket.on("disconnect", () => {
+        console.log("User disconnected: " + socket.id);
+    });
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 //enable sessions
 app.use(session({
-    secret: "", /*DELETE BEFORE PUSHING TO GITHUB*/
+    secret: "superSecretKey", /*DELETE BEFORE PUSHING TO GITHUB*/
     resave: false,
     saveUninitialized: false,
     proxy: true,
@@ -104,6 +126,8 @@ function requireAdmin(req, res, next) {
 }
 
 //------ item functions ------
+// POST, PUT, DELETE require authentication, GET is public. 
+// All authenticated actions emit socket events to update all clients in real time.
 
 //GET (unauthenticated)
 app.get('/api/items', async (req, res) => {
@@ -135,7 +159,15 @@ app.post('/api/items', requireAuth, async (req, res) => {
         return res.status(409).send("Duplicate ID");
     }
 
-    const newItem = await Item.create({ id, name, type });
+    const newItem = await Item.create({ id, name, type, lastModifiedBy: req.session.user.username });
+
+    //emit new item to all clients
+    io.emit("newItem", {
+        item: newItem,
+        user: req.session.user.username
+    });
+
+
     res.status(201).json({
         message: `Item created by ${req.session.user.username}`,
         item: newItem
@@ -152,7 +184,14 @@ app.put('/api/items/:id', requireAuth, async (req, res) => {
 
     item.name = req.body.name || item.name;
     item.type = req.body.type || item.type;
+    item.lastModifiedBy = req.session.user.username;
     await item.save();
+
+    //emit updated item to all clients
+    io.emit("updateItem", {
+        item: item,
+        user: req.session.user.username
+    });
     
     res.send(`Item updated by ${req.session.user.username}`);
 });
@@ -166,6 +205,12 @@ app.delete('/api/items/:id', requireAuth, async (req, res) => {
     }
 
     await item.destroy();
+
+    //emit deleted item to all clients
+    io.emit("deleteItem", {
+        item: item,
+        user: req.session.user.username
+    });
     
     res.send(`Item deleted by ${req.session.user.username}`);
 });
@@ -255,8 +300,8 @@ sequelize.sync({ alter: true }).then(async () => {
     }
     console.log("Default items created");
 
-    app.listen(3000, () => {
-    console.log("Server running on port 3000");
+    server.listen(3000, () => {
+        console.log("Server running on port 3000");
     });
 
 

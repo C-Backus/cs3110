@@ -12,8 +12,9 @@
                 <a href="greeting.html" class="nav_button">Go to greeting page</a>
 		<a href="admin-panel.html" id="adminButton" class="nav_button" style="display:none;"> Admin Panel</a>
 
-		<h1 class="welcome_message">----Web Page App Part Two----</h1>
+		<h1 class="welcome_message">----Activity Notifications----</h1>
 		<h2 class="welcome_message"><i>Now with Authentication!</i></h2>
+		<p>Using sockets, this page shows real time activity notifications for the authenticated POST, PUT, and DELETE operations.</p>
 
 		<!-- Login form -->
 		<h3>Login</h3>
@@ -61,6 +62,7 @@
 			    <button type="submit">Delete Item</button>
 			</form>
 
+		<script src="/socket.io/socket.io.js"></script>
 		<script src="fetcher.js"></script>
 
 	</body>

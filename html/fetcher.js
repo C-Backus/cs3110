@@ -1,3 +1,72 @@
+async function socketCalls(){
+    username = null;
+
+    //get username
+    try {
+
+        const response = await fetch("/api/me", {
+            credentials: "include"
+        });
+
+        if (!response.ok) {
+            username = null;
+            return;
+        }
+
+        const user = await response.json();
+        username = user.username;
+
+        username = user.username;
+    } catch (err) {
+        console.log("User check failed:", err);
+    }
+
+    //socket calls. Alerts user of changes made by other users, but not their own changes.
+    const socket = io();
+    socket.on("newItem", (data) => {
+        const message = `New item added: ${data.item.name} (${data.item.type}) by ${data.user}`;
+
+        console.log(data.user, username);
+        
+        if (data.user === username) {
+            return; 
+        }
+        else{
+            alert(message);
+        }
+        showObject();
+    });
+
+    socket.on("updateItem", (data) => {
+        const message = `Item updated: ${data.item.name} (${data.item.type}) by ${data.user}`;
+
+        console.log("data user:", data.user, "username:", username);
+
+        if (data.user === username) {
+            return; 
+        }
+        else{
+            alert(message);
+        }
+        showObject();
+    });
+
+    socket.on("deleteItem", (data) => {
+        const message = `Item deleted: ${data.item.name} (${data.item.type}) by ${data.user}`;
+
+        console.log(data.user, username);
+
+        if (data.user === username) {
+            return; 
+        }
+        else{
+            alert(message);
+        }
+        showObject();
+    });
+}
+socketCalls();
+
 const getObject = document.getElementById("getObject");
 const getResult = document.getElementById("getResult");
 const postResult = document.getElementById("postResult");
@@ -9,7 +78,12 @@ async function showObject() {
 
     let text = "";
     for (let i = 0; i < items.length; i++) {
-        text += items[i].id + ": " + items[i].name + " (" + items[i].type + ")\n";
+
+        if (items[i].lastModifiedBy === null) {
+            text += items[i].id + ": " + items[i].name + " (" + items[i].type + ") - Default item " + "\n";
+        } else {
+            text += items[i].id + ": " + items[i].name + " (" + items[i].type + ") - Last modified by: " + items[i].lastModifiedBy + "\n";
+        }
     }
     getObject.innerText = text;
 }
@@ -42,7 +116,6 @@ async function checkAdminButton() {
     }
 
 }
-
 checkAdminButton();
 
 //log in
