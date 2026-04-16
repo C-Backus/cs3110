@@ -10,7 +10,7 @@ Weekly Assignments
 
 Link to site: https://cbackus.chickenkiller.com/Activity-Notifications.html
 
-8: Updated code to reflect these two APIs from https://developer.mozilla.org/en-US/docs/Web/API:
+8: Updated code to reflect these two APIs from https://developer.mozilla.org/en-US/docs/Web/API
 
     Notifications - https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API
     Notifications have been upgraded to use the Notification API with a fallback to alert(). This means users must allow browser notifications to receive real-time updates. If browser notifications are blocked, the system will use alert() as a fallback. Testing this works best on Edge or Firefox by executing the get, post, put, or delete operations on a separate device and observing the notifications on a laptop/desktop computer.
