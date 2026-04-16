@@ -1,5 +1,32 @@
+username = null;
+const socket = io();
+
+//persist user theme preferences (web storage API)
+function applyTheme() {
+    const backgroundColor = localStorage.getItem("backgroundColor");
+    const fontType = localStorage.getItem("fontType");
+    const fontColor = localStorage.getItem("fontColor");
+
+    if (backgroundColor) {
+        document.body.style.backgroundColor = backgroundColor;
+    }
+    if (fontType) {
+        document.body.style.fontFamily = fontType;
+    }
+    if (fontColor) {
+        document.body.style.color = fontColor;
+    }
+}
+applyTheme();
+
 async function socketCalls(){
-    username = null;
+    
+
+    //request notification permission on page load (notification API)
+    if (Notification.permission !== "granted") {
+        await Notification.requestPermission();
+        console.log("Notification permission:", Notification.permission);
+    }
 
     //get username
     try {
@@ -16,13 +43,12 @@ async function socketCalls(){
         const user = await response.json();
         username = user.username;
 
-        username = user.username;
     } catch (err) {
         console.log("User check failed:", err);
     }
 
     //socket calls. Alerts user of changes made by other users, but not their own changes.
-    const socket = io();
+
     socket.on("newItem", (data) => {
         const message = `New item added: ${data.item.name} (${data.item.type}) by ${data.user}`;
 
@@ -32,7 +58,12 @@ async function socketCalls(){
             return; 
         }
         else{
-            alert(message);
+            //notification API primary, falls back to alert if notifications are not allowed
+            if (Notification.permission === "granted") {
+                new Notification(message);
+            } else {
+                alert(message);
+            }
         }
         showObject();
     });
@@ -46,7 +77,12 @@ async function socketCalls(){
             return; 
         }
         else{
-            alert(message);
+            //notification API primary, falls back to alert if notifications are not allowed
+            if (Notification.permission === "granted") {
+                new Notification(message);
+            } else {
+                alert(message);
+            }
         }
         showObject();
     });
@@ -60,7 +96,12 @@ async function socketCalls(){
             return; 
         }
         else{
-            alert(message);
+            //notification API primary, falls back to alert if notifications are not allowed
+            if (Notification.permission === "granted") {
+                new Notification(message);
+            } else {
+                alert(message);
+            }
         }
         showObject();
     });
@@ -117,6 +158,32 @@ async function checkAdminButton() {
 
 }
 checkAdminButton();
+
+//theme selection (web storage API)
+const backgroundColorSelection = document.getElementById("backgroundColorSelection");
+const fontTypeSelection = document.getElementById("fontTypeSelection");
+const fontColorSelection = document.getElementById("fontColorSelection");
+if (backgroundColorSelection) {
+    backgroundColorSelection.addEventListener("input", (event) => {
+        const backgroundColor = event.target.value;
+        document.body.style.backgroundColor = backgroundColor;
+        localStorage.setItem("backgroundColor", backgroundColor);
+    });
+}
+if (fontTypeSelection) {
+    fontTypeSelection.addEventListener("input", (event) => {
+        const fontType = event.target.value;
+        document.body.style.fontFamily = fontType;
+        localStorage.setItem("fontType", fontType);
+    });
+}
+if (fontColorSelection) {
+    fontColorSelection.addEventListener("input", (event) => {
+        const fontColor = event.target.value;
+        document.body.style.color = fontColor;
+        localStorage.setItem("fontColor", fontColor);
+    });
+}
 
 //log in
 const loginMessage = document.getElementById("loginMessage");

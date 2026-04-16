@@ -3,7 +3,7 @@
     <head>
 	<meta charset="UTF-8">
         <link rel="stylesheet" href="base.css">
-        <title>Web Page App Part Two</title>
+        <title>Activity Notifications</title>
 
     </head>
         <body class="all_text">
@@ -15,6 +15,18 @@
 		<h1 class="welcome_message">----Activity Notifications----</h1>
 		<h2 class="welcome_message"><i>Now with Authentication!</i></h2>
 		<p>Using sockets, this page shows real time activity notifications for the authenticated POST, PUT, and DELETE operations.</p>
+		<p>Week 8 assignment update: <br>
+			1st API: Notifications have been upgraded to use the Notification API with a fallback to alert(). This means 
+			users must allow browser notifications to receive real-time updates. If browser notifications are blocked, the system will
+			use alert() as a fallback. Testing this works best on Edge or Firefox by executing the get, post, put, or delete operations
+			on a separate device and observing the notifications on a laptop/desktop computer. <br>
+
+			2nd API: The Web Storage API is being used to persist user theme preferences (background color, font type, and font color) 
+			across sessions. When a user selects their preferred theme settings, these preferences are saved in the browser's local storage. 
+			Upon revisiting the page, the stored preferences are retrieved and applied.<br>
+
+			Please see GitHub linked in assignment description for more details.
+		</p>
 
 		<!-- Login form -->
 		<h3>Login</h3>
@@ -61,6 +73,22 @@
 			    <input type="number" name="id" placeholder="ID to Delete">
 			    <button type="submit">Delete Item</button>
 			</form>
+
+		<h3>Theme Selections</h3>
+		<form>
+			<label>Background Color:</label>
+			<input type="color" id="backgroundColorSelection" name="backgroundColor">
+
+			<label>Font Type:</label>
+			<select id="fontTypeSelection" name="fontType">
+				<option value="Arial">Arial</option>
+				<option value="Comic Sans MS">Comic Sans MS</option>
+				<option value="Times New Roman">Times New Roman</option>
+			</select>
+
+			<label>Font Color:</label>
+			<input type="color" id="fontColorSelection" name="fontColor">
+		</form>
 
 		<script src="/socket.io/socket.io.js"></script>
 		<script src="fetcher.js"></script>
